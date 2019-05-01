@@ -5,6 +5,7 @@ Loads config file ( dco_org_check.yaml ) for credentials
 * token - GitHub access token
 * org - Github org name
 * csvfile - name of csvfile ( defaults to dco_issues.csv )
-* create_prior_commits_file - if 1, creates out a prior commits signoff file for each committer and repo for them to check in.
+* dco_signoffs_directory - directory where previous commit signoffs are in the repo
+* create_prior_commits_file - 1 if you want to have the script create the previous commits signoff files ( puts in directory named 'dco-signoffs')
 
 SPDX-License-Identifier: Apache-2.0
