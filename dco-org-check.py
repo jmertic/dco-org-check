@@ -24,12 +24,12 @@ import base64
 
 from github import Github
 
-def loadconfig():
+def loadconfig(config_file):
     try:
-        with open("dco_org_check.yaml", 'r') as stream:
+        with open(config_file, 'r') as stream:
             data_loaded = yaml.safe_load(stream)
     except:
-        sys.exit("dco_org_check.yaml config file is not defined")
+        sys.exit(config_file+" config file is not defined")
 
 
     if not 'token' in data_loaded:
@@ -75,7 +75,15 @@ def is_merge_commit(commit):
     else:
         return 0
 
-config = loadconfig();
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+parser.add_argument("-c", "--config", dest="configfile", default="dco_org_check.yaml", help="name of YAML config file (defaults to dco_org_check.yaml)")
+args = parser.parse_args()
+print(args.configfile);
+sys.exit()
+
+config = loadconfig(args.configfile);
 csvfile = open(config['csvfile'], mode='w')
 csv_writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
 g = Github(config['token'])
