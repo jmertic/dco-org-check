@@ -6,10 +6,12 @@
 # token - GitHub access token
 # org - Github org name
 # csvfile - name of csvfile ( defaults to dco_issues.csv )
-# dco_signoffs_directory - directory where previous commit signoffs are in the repo
-# create_prior_commits_file - 1 if you want to have the script create the previous commits signoff files ( puts in directory named 'dco-signoffs')
+# dco_signoffs_directory - directory where previous commit signoffs are in the repo ( defaults 'dco-signoffs')
+# create_prior_commits_file - 1 if you want to have the script create the previous commits signoff files
+# create_prior_commits_dir - director where to store the prior commits files ( defaults 'dco-signoffs')
 # ignore_repos - list of repos to ignore when scanning
 # only_repos - list of repos to only look at when scanning
+#
 #
 # Copyright this project and it's contributors
 # SPDX-License-Identifier: Apache-2.0
@@ -44,6 +46,8 @@ def loadconfig(config_file):
         data_loaded['dco_signoffs_directory'] = "dco-signoffs"
     if not 'create_prior_commits_file' in data_loaded:
         data_loaded['create_prior_commits_file'] = 0
+    if not 'create_prior_commits_dir'
+        data_loaded['create_prior_commits_dir'] = 'dco-signoffs'
 
     return data_loaded
 
@@ -115,15 +119,15 @@ for repo in g.get_organization(config['org']).get_repos():
                  csv_writer.writerow([commit.commit.html_url,commit.commit.message,commit.commit.author.name,commit.commit.author.email,commit.commit.author.date])
 
         if config['create_prior_commits_file']:
-            if not os.path.exists('dco-signoffs'):
-                os.mkdir('dco-signoffs')
+            if not os.path.exists(config['create_prior_commits_dir']):
+                os.mkdir(config['create_prior_commits_dir'])
 
             username = commit.commit.author.name
             email = commit.commit.author.email
             url_search = re.search("https://github.com/"+config['org']+"/(.*)/commit/(.*)",commit.commit.html_url)
             repo = url_search.group(1)
             sha = url_search.group(2)
-            commitfilename = 'dco-signoffs/'+username+'-'+repo+'.txt'
+            commitfilename = config['create_prior_commits_dir']+'/'+username+'-'+repo+'.txt'
 
             if not os.path.isfile(commitfilename):
                 fh = open(commitfilename,  mode='w+')
