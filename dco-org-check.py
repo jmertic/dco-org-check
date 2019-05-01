@@ -37,7 +37,7 @@ def loadconfig(config_file):
         data_loaded['dco_signoffs_directory'] = "dco-signoffs"
     if not 'create_prior_commits_file' in data_loaded:
         data_loaded['create_prior_commits_file'] = 0
-    if not 'create_prior_commits_dir'
+    if not 'create_prior_commits_dir' in data_loaded:
         data_loaded['create_prior_commits_dir'] = 'dco-signoffs'
 
     return data_loaded
