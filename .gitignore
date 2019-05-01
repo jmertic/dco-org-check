@@ -1,4 +1,4 @@
-dco_org_check.yaml
+*.yaml
 *.csv
 *.txt
 dco-signoffs/
