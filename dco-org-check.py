@@ -80,8 +80,6 @@ from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument("-c", "--config", dest="configfile", default="dco_org_check.yaml", help="name of YAML config file (defaults to dco_org_check.yaml)")
 args = parser.parse_args()
-print(args.configfile);
-sys.exit()
 
 config = loadconfig(args.configfile);
 csvfile = open(config['csvfile'], mode='w')
