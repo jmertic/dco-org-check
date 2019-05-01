@@ -8,6 +8,8 @@
 # csvfile - name of csvfile ( defaults to dco_issues.csv )
 # dco_signoffs_directory - directory where previous commit signoffs are in the repo
 # create_prior_commits_file - 1 if you want to have the script create the previous commits signoff files ( puts in directory named 'dco-signoffs')
+# ignore_repos - list of repos to ignore when scanning
+# only_repos - list of repos to only look at when scanning
 #
 # Copyright this project and it's contributors
 # SPDX-License-Identifier: Apache-2.0
@@ -89,6 +91,16 @@ g = Github(config['token'])
 past_signoffs = get_past_signoffs(config['org'],config['dco_signoffs_directory'],g)
 
 for repo in g.get_organization(config['org']).get_repos():
+    # Check if we are only looking at certain repos
+    if 'only_repos' in config:
+        if not repo.name in config['only_repos']:
+            continue
+    # Check if there are ignore repos defined
+    if 'ignore_repos' in config:
+        if repo.name in config['ignore_repos']:
+            continue
+
+    # Parse commits
     for commit in repo.get_commits():
         if has_sign_off(commit):
             continue
