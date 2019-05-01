@@ -2,16 +2,7 @@
 #
 # Script to check a GitHub org for commits without a DCO signoff that should have one.
 #
-# Loads config file ( dco_org_check.yaml ) for credentials
-# token - GitHub access token
-# org - Github org name
-# csvfile - name of csvfile ( defaults to dco_issues.csv )
-# dco_signoffs_directory - directory where previous commit signoffs are in the repo ( defaults 'dco-signoffs')
-# create_prior_commits_file - 1 if you want to have the script create the previous commits signoff files
-# create_prior_commits_dir - director where to store the prior commits files ( defaults 'dco-signoffs')
-# ignore_repos - list of repos to ignore when scanning
-# only_repos - list of repos to only look at when scanning
-#
+# Loads config file ( dco_org_check.yaml by default, override with -c command line arg ) for credentials and other config options ( refer to README.md for more details
 #
 # Copyright this project and it's contributors
 # SPDX-License-Identifier: Apache-2.0
