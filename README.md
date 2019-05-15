@@ -34,8 +34,10 @@ only_repos:
 
 ## Useful tools to make doing DCO signoffs easier
 
+There are a number of great tools out there to manage DCO signoffs for developers to make it much easier to do signoffs.
+
 - DCO command line tool, which let's you do a single signoff for an entire repo ( https://github.com/coderanger/dco )
-- GitHub UI integrations for adding the signoff Automatically
+- GitHub UI integrations for adding the signoff automatically ( https://github.com/scottrigby/dco-gh-ui )
   - Chrome - https://chrome.google.com/webstore/detail/dco-github-ui/onhgmjhnaeipfgacbglaphlmllkpoijo
   - Firefox - https://addons.mozilla.org/en-US/firefox/addon/scott-rigby/?src=search
 
