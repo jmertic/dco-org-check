@@ -1,8 +1,11 @@
+# DCO org check
+
 Script to check a GitHub org for commits without a DCO signoff that should have one.
 
 Loads config file ( defaults to dco_org_check.yaml, or specify at the command line after -c ) for credentials
 
-Config file options ( set argument is the default if not specified )
+## Config file options ( set argument is the default if not specified )
+
 ```yaml
 # GitHub access token ( required )
 token:
@@ -28,5 +31,12 @@ only_repos:
   - repo2
   - ...
 ```
+
+## Useful tools to make doing DCO signoffs easier
+
+- DCO command line tool, which let's you do a single signoff for an entire repo ( https://github.com/coderanger/dco )
+- GitHub UI integrations for adding the signoff Automatically
+  - Chrome - https://chrome.google.com/webstore/detail/dco-github-ui/onhgmjhnaeipfgacbglaphlmllkpoijo
+  - Firefox - https://addons.mozilla.org/en-US/firefox/addon/scott-rigby/?src=search
 
 SPDX-License-Identifier: Apache-2.0
