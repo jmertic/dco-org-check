@@ -5,24 +5,25 @@ Loads config file ( defaults to dco_org_check.yaml, or specify at the command li
 Config file options ( set argument is the default if not specified )
 ```yaml
 # GitHub access token ( required )
-token: 
+token:
 # Github org name ( required )
-org: 
+org:
 # name of csvfile
-csvfile: dco_issues.csv 
-# directory where previous commit signoffs are in the repo
-dco_signoffs_directory: dco-signoffs 
+csvfile: dco_issues.csv
+# list of directory names where previous commit signoffs are in the repo
+dco_signoffs_directories:
+  - dco-signoffs
 # set to 1 if you want to have the script create the previous commits signoff files
-create_prior_commits_file: 1 
+create_prior_commits_file: 1
 # directory where to store the prior commits files
-create_prior_commits_dir: dco-signoffs 
+create_prior_commits_dir: dco-signoffs
 # list of repos to ignore when scanning
-ignore_repos: 
+ignore_repos:
   - repo1
   - repo2
   - ...
 # list of repos to only look at when scanning
-only_repos: 
+only_repos:
   - repo1
   - repo2
   - ...
