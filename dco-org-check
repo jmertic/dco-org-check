@@ -17,8 +17,8 @@ import os
 import sys
 import base64
 import shutil
-
-from github import Github
+import time
+from github import Github, GithubException, RateLimitExceededException
 
 def loadconfig(config_file):
     try:
@@ -50,10 +50,19 @@ def get_past_signoffs(org,signoff_dirs,g):
     signoffs = []
 
     for signoff_dir in signoff_dirs:
-        results = g.search_code("org:"+org+" path:"+signoff_dir)
+        try:
+            results = g.search_code("org:"+org+" path:"+signoff_dir)
 
-        for result in results:
-            signoffs.append((result.repository.name,result.path,base64.b64decode(result.content)))
+            for result in results:
+                signoffs.append((result.repository.name,result.path,base64.b64decode(result.content)))
+        except RateLimitExceededException:
+            print("Sleeping for an hour as we hit the API rate limit....")
+            time.sleep(3600) # sleep 1 hour
+        except GithubException as e:
+            if e.status == 502:
+                print("Server error - retrying...")
+            else:
+                print(e.data)
 
     return signoffs
 
@@ -97,49 +106,59 @@ g = Github(config['token'])
 past_signoffs = get_past_signoffs(config['org'],config['dco_signoffs_directories'],g)
 
 for repo in g.get_organization(config['org']).get_repos():
-    # Check if we are only looking at certain repos
-    if 'only_repos' in config:
-        if not repo.name in config['only_repos']:
-            continue
-    # Check if there are ignore repos defined
-    if 'ignore_repos' in config:
-        if repo.name in config['ignore_repos']:
-            continue
+    try:
+        # Check if we are only looking at certain repos
+        if 'only_repos' in config:
+            if not repo.name in config['only_repos']:
+                continue
+        # Check if there are ignore repos defined
+        if 'ignore_repos' in config:
+            if repo.name in config['ignore_repos']:
+                continue
 
-    # Parse commits
-    for commit in repo.get_commits():
-        html_url = commit.commit.html_url
-        commit_message = commit.commit.message
-        author_name = commit.commit.author.name
-        author_email = commit.commit.author.email
-        author_date = commit.commit.author.date
+        print("Searching repo {}...".format(repo.name))
+        # Parse commits
+        for commit in repo.get_commits():
+            html_url = commit.commit.html_url
+            commit_message = commit.commit.message
+            author_name = commit.commit.author.name
+            author_email = commit.commit.author.email
+            author_date = commit.commit.author.date
 
-        if has_sign_off(commit_message):
-            continue
-        if is_merge_commit(commit):
-            continue
-        if has_past_signoff(html_url,past_signoffs):
-            continue
-        try:
-            csv_writer.writerow([html_url,commit_message,author_name,author_email,author_date])
-        except GithubException as e:
-            if e.status == 502:
-                 csv_writer.writerow([html_url,commit_message,author_name,author_email,author_date])
+            if has_sign_off(commit_message):
+                continue
+            if is_merge_commit(commit):
+                continue
+            if has_past_signoff(html_url,past_signoffs):
+                continue
+            try:
+                csv_writer.writerow([html_url,commit_message,author_name,author_email,author_date])
+            except GithubException as e:
+                if e.status == 502:
+                     csv_writer.writerow([html_url,commit_message,author_name,author_email,author_date])
 
-        if config['create_prior_commits_file']:
-            if not os.path.exists(config['create_prior_commits_dir']):
-                os.mkdir(config['create_prior_commits_dir'])
+            if config['create_prior_commits_file']:
+                if not os.path.exists(config['create_prior_commits_dir']):
+                    os.mkdir(config['create_prior_commits_dir'])
 
-            url_search = re.search("https://github.com/"+config['org']+"/(.*)/commit/(.*)",html_url)
-            repo = url_search.group(1)
-            sha = url_search.group(2)
-            commitfilename = config['create_prior_commits_dir']+'/'+author_name+'-'+repo+'.txt'
+                url_search = re.search("https://github.com/"+config['org']+"/(.*)/commit/(.*)",html_url)
+                repo = url_search.group(1)
+                sha = url_search.group(2)
+                commitfilename = config['create_prior_commits_dir']+'/'+author_name+'-'+repo+'.txt'
 
-            if not os.path.isfile(commitfilename):
-                fh = open(commitfilename,  mode='w+')
-                fh.write("I, "+author_name+" hereby sign-off-by all of my past commits to this repo subject to the Developer Certificate of Origin (DCO), Version 1.1. In the past I have used emails: "+author_email+"\n\n")
-            else:
-                fh = open(commitfilename,  mode='a')
+                if not os.path.isfile(commitfilename):
+                    fh = open(commitfilename,  mode='w+')
+                    fh.write("I, "+author_name+" hereby sign-off-by all of my past commits to this repo subject to the Developer Certificate of Origin (DCO), Version 1.1. In the past I have used emails: "+author_email+"\n\n")
+                else:
+                    fh = open(commitfilename,  mode='a')
 
-            fh.write(sha+" "+commit_message+"\n")
-            fh.close()
+                fh.write(sha+" "+commit_message+"\n")
+                fh.close()
+    except RateLimitExceededException:
+        print("Sleeping for an hour as we hit the API rate limit....")
+        time.sleep(3600) # sleep 1 hour
+    except GithubException as e:
+        if e.status == 502:
+            print("Server error - retrying...")
+        else:
+            print(e.data)
