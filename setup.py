@@ -3,7 +3,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
      name='dco-org-check',
-     version='0.1',
+     version='0.2',
      scripts=['dco-org-check'] ,
      author="John Mertic",
      author_email="jmertic@gmail.com",
