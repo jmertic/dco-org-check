@@ -1,3 +1,5 @@
+[![PyPI version](https://badge.fury.io/py/dco-org-check.svg)](https://badge.fury.io/py/dco-org-check)
+
 # DCO org check
 
 Script to check a GitHub org for commits without a DCO signoff that should have one.
