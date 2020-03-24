@@ -130,3 +130,6 @@ dmypy.json
 
 # temp dir
 /tmp
+
+# add back in for packaging
+!requirements.txt
