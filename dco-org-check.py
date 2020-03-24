@@ -11,7 +11,6 @@
 
 import re
 import csv
-import yaml
 import io
 import os
 import sys
@@ -19,9 +18,13 @@ import base64
 import shutil
 import time
 import socket
+from argparse import ArgumentParser
+
+# third party modules
+import yaml
 import git
 from github import Github, GithubException, RateLimitExceededException
-from argparse import ArgumentParser
+
 
 class Config():
     token = ''
