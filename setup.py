@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
 setuptools.setup(
      name='dco-org-check',
      version='0.2',
-     scripts=['dco-org-check'] ,
+     scripts=['dco-org-check.py'] ,
      author="John Mertic",
      author_email="jmertic@gmail.com",
      description="Script to check a GitHub org for commits without a DCO signoff that should have one.",

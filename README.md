@@ -32,6 +32,8 @@ only_repos:
   - repo1
   - repo2
   - ...
+# temp directory ( removed after run )
+temp_dir: 'tmp'
 ```
 
 ## Useful tools to make doing DCO signoffs easier
