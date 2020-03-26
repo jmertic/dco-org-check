@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 #
-# Script to check a GitHub org for commits without a DCO signoff that should have one.
-#
-# Loads config file ( dco_org_check.yaml by default, override with -c command line arg ) for credentials and other config options ( refer to README.md for more details
-#
 # Copyright this project and it's contributors
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -25,7 +21,6 @@ from datetime import datetime
 import yaml
 import git
 from github import Github, GithubException, RateLimitExceededException
-
 
 class Config():
     token = ''
@@ -142,7 +137,6 @@ class Config():
                 print("Server error - retrying...")
 
 class Commit():
-
     sha = ''
     html_url = ''
     commit_message = ''
@@ -162,13 +156,6 @@ class Commit():
             self.author_email = commitObject.author.email
             self.author_date = commitObject.authored_datetime
             self.is_merge_commit = len(commitObject.parents) > 1
-        # else if ( str(type(commitObject)) ==  "<class 'git.objects.commit.Commit'>" ):
-        #     html_url = commitObject.commit.html_url
-        #     commit_message = commitObject.commit.message
-        #     author_name = commitObject.commit.author.name
-        #     author_email = commitObject.commit.author.email
-        #     author_date = commitObject.commit.author.date
-        #     self.is_merge_commit = len(commitObject.parents) > 1
 
         url_search = re.search("https://github.com/(.*)/(.*)/commit/.*",self.html_url)
         if url_search:
@@ -191,7 +178,6 @@ class Commit():
         return 0;
 
 class DCOOutput():
-
     csv_writer = None
     create_prior_commits_file = False
     create_prior_commits_dir = ''
@@ -240,6 +226,9 @@ def getCommits(clone_url,repo_name,temp_dir):
     # return repo.get_commits()
 
 def main():
+
+    startTime = datetime.now()
+
     parser = ArgumentParser()
     parser.add_argument("-c", "--config", dest="configfile", default="dco_org_check.yaml", help="name of YAML config file (defaults to dco_org_check.yaml)")
     args = parser.parse_args()
