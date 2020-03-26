@@ -19,6 +19,7 @@ import shutil
 import time
 import socket
 from argparse import ArgumentParser
+from datetime import datetime
 
 # third party modules
 import yaml
@@ -265,6 +266,8 @@ def main():
                 continue
 
             dcoOut.writeCommit(commit)
+
+    print("This took "+str(datetime.now() - startTime))
 
 if __name__ == '__main__':
     main()
