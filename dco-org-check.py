@@ -101,11 +101,21 @@ class Config():
         return True
 
     def getRepos(self):
-        g = Github(login_or_token=self.token, per_page=1000)
-        self.loadPastSignoffs(self.org,self.dco_signoffs_directories,g)
+        repos = []
 
+        g = Github(login_or_token=self.token, per_page=1000)
         try:
-            repos = g.get_organization(self.org).get_repos()
+            gh_repos = g.get_organization(self.org).get_repos()
+            for gh_repo in gh_repos:
+                repos.append(
+                    Repo(
+                        gh_repo.name,
+                        gh_repo.html_url,
+                        gh_repo.archived,
+                        self.dco_signoffs_directories,
+                        self.temp_dir
+                    )
+                )
         except RateLimitExceededException:
             print("Sleeping until we get past the API rate limit....")
             time.sleep(g.rate_limiting_resettime-now())
@@ -118,23 +128,6 @@ class Config():
             print("Server error - retrying...")
 
         return repos
-
-    def loadPastSignoffs(self,org,signoff_dirs,g):
-        for signoff_dir in signoff_dirs:
-            try:
-                results = g.search_code("org:"+org+" path:"+signoff_dir)
-                for result in results:
-                    self.signoffs.append((result.repository.name,result.path,base64.b64decode(result.content)))
-            except RateLimitExceededException:
-                print("Sleeping until we get past the API rate limit....")
-                time.sleep(g.rate_limiting_resettime-now())
-            except GithubException as e:
-                if e.status == 502:
-                    print("Server error - retrying...")
-                else:
-                    print(e.data)
-            except socket.timeout:
-                print("Server error - retrying...")
 
 class Commit():
     sha = ''
@@ -171,9 +164,8 @@ class Commit():
         sha = url_search.group(2)
 
         for signoff in signoffs:
-            if signoff[0] == repo:
-                if not signoff[2].find(sha.encode()) == -1:
-                    return 1
+            if not signoff[1].find(sha.encode()) == -1:
+                return 1
 
         return 0;
 
@@ -218,12 +210,36 @@ class DCOOutput():
         fh.write(commit.sha+" "+commit.commit_message+"\n")
         fh.close()
 
-def getCommits(clone_url,repo_name,temp_dir):
-    if not os.path.exists(temp_dir):
-        os.mkdir(temp_dir)
-    gitrepo = git.Repo.clone_from(clone_url,temp_dir+'/'+repo_name)
-    return gitrepo.iter_commits()
-    # return repo.get_commits()
+class Repo():
+    name = ''
+    html_url = ''
+    archived = False
+    dco_signoffs_directories = ["dco-signoffs"]
+    temp_dir = 'tmp'
+    past_signoffs = []
+
+    def __init__(self, name, html_url, archived = False, dco_signoffs_directories = ["dco-signoffs"], temp_dir = 'tmp'):
+        self.name = name
+        self.html_url = html_url
+        self.archived = archived
+        self.dco_signoffs_directories = dco_signoffs_directories
+        self.temp_dir = temp_dir
+
+    def getCommits(self, loadPastCommits = True):
+        if not os.path.exists(self.temp_dir):
+            os.mkdir(self.temp_dir)
+        gitrepo = git.Repo.clone_from(self.html_url,self.temp_dir+'/'+self.name)
+
+        # lazy load in the past commits
+        if loadPastCommits:
+            for entry in gitrepo.heads.master.commit.tree:
+                if entry.type == 'tree' and entry.name in self.dco_signoffs_directories:
+                    for file in entry.blobs:
+                        with open(self.temp_dir+'/'+self.name+'/'+file.path, 'rb') as content_file:
+                            content = content_file.read()
+                        self.past_signoffs.append([file.path,content])
+
+        return gitrepo.iter_commits()
 
 def main():
 
@@ -245,13 +261,13 @@ def main():
 
         print("Searching repo {}...".format(repo.name))
         # Parse commits
-        for commitObject in getCommits(repo.html_url,repo.name,config.temp_dir):
+        for commitObject in repo.getCommits():
             commit = Commit(commitObject,repo.html_url)
             if commit.hasSignOff():
                 continue
             if commit.is_merge_commit:
                 continue
-            if commit.hasPastSignoff(config.signoffs):
+            if commit.hasPastSignoff(repo.past_signoffs):
                 continue
 
             dcoOut.writeCommit(commit)
