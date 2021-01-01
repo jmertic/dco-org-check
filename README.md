@@ -1,3 +1,5 @@
+***DEPRECATED: Use https://github.com/jmertic/contrib_check instead***
+
 # DCO org check
 
 Script to check a GitHub org for commits without a DCO signoff that should have one.
